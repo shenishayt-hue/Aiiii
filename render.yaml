@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: supun-ai-bot
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node index.js
+    healthCheckPath: /health
+    envVars:
+      - key: API_KEY
+        sync: false
+      - key: BOT_NAME
+        value: Supun AI
+      - key: OWNER_NAME
+        value: Supun
+      - key: OWNER_NUMBER
+        sync: false
+      - key: DEFAULT_MODEL
+        value: qwen
