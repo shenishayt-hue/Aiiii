@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsApp AI Bot – Pair</title>
+<style>
+:root{--bg:#0b1020;--card:#131a30;--bd:#25305a;--tx:#e8ecff;--mt:#8f9bc7;--ac:#25d3a7;--ac2:#6c8cff}
+@media (prefers-color-scheme: light){:root{--bg:#f2f5ff;--card:#fff;--bd:#d6dcf5;--tx:#141a36;--mt:#5b6590;--ac:#0fae86;--ac2:#4a6bff}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding:20px 16px 40px}
+.wrap{max-width:460px;margin:0 auto}
+h1{font-size:26px;margin:18px 0 4px}
+h1 span{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+p.sub{color:var(--mt);margin:0 0 18px;line-height:1.5}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--mt);margin:12px 0 6px}
+input,textarea{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--bd);background:transparent;color:var(--tx);font-size:16px;font-family:inherit}
+textarea{min-height:80px;resize:vertical}
+input:focus,textarea:focus{outline:2px solid var(--ac2);border-color:transparent}
+button{width:100%;margin-top:16px;padding:14px;border:0;border-radius:12px;font-size:16px;font-weight:600;color:#06241c;background:linear-gradient(90deg,var(--ac),var(--ac2));cursor:pointer}
+button:disabled{opacity:.6}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:34px;letter-spacing:4px;text-align:center;padding:16px 0;border:2px dashed var(--ac);border-radius:14px;margin:8px 0 12px}
+.err{color:#ff6b7a;margin-top:12px;font-size:14px}
+ol{padding-left:20px;color:var(--mt);line-height:1.7;margin:8px 0 0}
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.feat div{font-size:13px;padding:10px;border:1px solid var(--bd);border-radius:12px}
+.hide{display:none}
+small{color:var(--mt)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🤖 <span>WhatsApp AI Bot</span></h1>
+  <p class="sub">ඔයාගේ WhatsApp number එකට AI assistant කෙනෙක් connect කරගන්න. Sinhala support ✅</p>
+
+  <div class="card" id="formCard">
+    <label>WhatsApp number (country code එක්ක, + නැතිව)</label>
+    <input id="num" type="tel" inputmode="numeric" placeholder="94771234567">
+    <label>Bot name (optional)</label>
+    <input id="bname" maxlength="40" placeholder="Supun AI">
+    <label>Persona / personality (optional)</label>
+    <textarea id="persona" maxlength="800" placeholder="උදා: ඔයා anime ආදරේ කරන යාලුවෙක්. ..."></textarea>
+    <button id="go">Pair Code ගන්න</button>
+    <div class="err hide" id="err"></div>
+  </div>
+
+  <div class="card hide" id="codeCard">
+    <small>ඔයාගේ pair code එක</small>
+    <div class="code" id="code">----</div>
+    <button id="copy">Copy කරන්න</button>
+    <ol>
+      <li>WhatsApp → <b>Settings → Linked devices</b></li>
+      <li><b>Link a device → Link with phone number instead</b></li>
+      <li>උඩ code එක enter කරන්න</li>
+      <li>Connect උනාම bot ට <b>.menu</b> කියලා message කරන්න ✅</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <b>Features</b>
+    <div class="feat">
+      <div>💬 AI chat (Sinhala/English)</div><div>🎙️ Voice replies</div>
+      <div>🎵 AI songs</div><div>🎨 Logo maker</div>
+      <div>🧠 Chat memory</div><div>⚙️ Custom persona</div>
+    </div>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+$('go').onclick=async()=>{
+  $('err').classList.add('hide');
+  const b=$('go'); b.disabled=true; b.textContent='Code එක හදනවා...';
+  try{
+    const r=await fetch('/api/pair',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({number:$('num').value,botName:$('bname').value,persona:$('persona').value})});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error||'Error');
+    if(d.linked){ $('err').textContent='✅ Already connected!'; $('err').classList.remove('hide'); }
+    else{ $('code').textContent=d.code; $('codeCard').classList.remove('hide'); $('formCard').classList.add('hide'); }
+  }catch(e){ $('err').textContent=e.message; $('err').classList.remove('hide'); }
+  b.disabled=false; b.textContent='Pair Code ගන්න';
+};
+$('copy').onclick=()=>{ navigator.clipboard.writeText($('code').textContent.replace('-','')); $('copy').textContent='Copied ✅'; };
+</script>
+</body>
+</html>
